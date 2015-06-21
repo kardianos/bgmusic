@@ -184,6 +184,7 @@ var indexT = template.Must(template.New("").Parse(index))
 var index = `<!doctype html>
 <html>
 <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>BG Music</title>
 	
 	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -233,6 +234,9 @@ function send(to, data, done) {
 		xhr.send();
 	}
 }
+function qid(name) {
+	return document.getElementById(name);
+}
 $("#start").on("click", function(ev) {
 	send("/api/start");
 });
@@ -241,20 +245,21 @@ $("#stop").on("click", function(ev) {
 });
 $("#load").on("click", function(ev) {
 	var data = new FormData();
-	var sound = $("#sound")[0];
+	var sound = document.getElementById("sound");
 	if(sound.files.length === 0) {
 		alert("no file selected");
 		return;
 	}
-	data.set("sound", sound.files[0]);
+	data.append("sound", sound.files[0]);
 	send("/api/load", data, function() {
 		location.href = "/";
 	});
 });
-$("#list").on("click", "li", function(ev) {
+$("#list li").on("click", function(ev) {
 	var data = new FormData();
-	data.set("name", $(this).text());
-	send("/api/choose", data);
+	data.append("name", this.textContent);
+	send("/api/choose", data, function(res) {
+	});
 })
 </script>
 </body>
