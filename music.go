@@ -147,9 +147,8 @@ var index = `<!doctype html>
 </style>
 </head>
 <body>
-	<h2>BG Music</h2>
+	<h2>Background Music</h2>
 	
-	<!--<button id="start">Start</button>-->
 	<button id="stop">Stop</button>
 	
 	<br>
