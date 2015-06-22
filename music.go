@@ -7,9 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"time"
+	"strings"
 )
 
 const (
@@ -93,71 +92,13 @@ func main() {
 	http.ListenAndServe(":9000", nil)
 }
 
-type LoopCmd struct {
-	path string
-	args []string
-	cmd *exec.Cmd
-
-	stop chan struct{}
-	next chan struct{}
+type Stopper interface {
+	Stop()
 }
-
-func LoopCmdStart(cmd string, args ...string) (*LoopCmd, error) {
-	lc := &LoopCmd{
-		path: cmd,
-		args: args,
-		stop: make(chan struct{}, 3),
-		next: make(chan struct{}, 3),
-	}
-	err := lc.start()
-	go lc.run()
-	return lc, err
-}
-
-func (lc *LoopCmd) Stop() {
-	if lc == nil {
-		return
-	}
-	close(lc.stop)
-	if lc.cmd == nil || lc.cmd.Process == nil {
-		return
-	}
-	lc.cmd.Process.Kill()
-}
-
-func (lc *LoopCmd) start() error {
-	cmd := exec.Command(lc.path, lc.args...)
-	lc.cmd = cmd
-	err := cmd.Start()
-	if err == nil {
-		go lc.wait(cmd)
-	}
-	return err
-}
-
-func (lc *LoopCmd) wait(cmd *exec.Cmd) {
-	cmd.Wait()
-	lc.next <- struct{}{}
-}
-
-func (lc *LoopCmd) run() {
-	tick := time.NewTicker(time.Millisecond * 15)
-	for {
-		select {
-		case <-lc.next:
-			err := lc.start()
-			if err != nil {
-				log.Print(err)
-			}
-		case <-lc.stop:
-			tick.Stop()
-			return
-		}
-	}
-}
+type Starter func(filename string) (Stopper, error)
 
 func playLoop(control chan CTL, errs chan error) {
-	var cmd *LoopCmd
+	var cmd Stopper
 	var err error
 
 	for {
@@ -165,8 +106,15 @@ func playLoop(control chan CTL, errs chan error) {
 		case ctl := <-control:
 			switch ctl {
 			default:
-				cmd.Stop()
-				cmd, err = LoopCmdStart("play", filepath.Join(SoundFolder, string(ctl)))
+				if cmd != nil {
+					cmd.Stop()
+				}
+				name := string(ctl)
+				starter := Starter(LoopCmdStart)
+				if strings.HasSuffix(name, ".raw") {
+					starter = RawCmdStart
+				}
+				cmd, err = starter(filepath.Join(SoundFolder, name))
 				if err != nil {
 					errs <- err
 					continue
