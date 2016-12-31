@@ -49,8 +49,8 @@ const (
 	EVIOCRMFF     = C.EVIOCRMFF     // erase a force effect
 	EVIOCGEFFECTS = C.EVIOCGEFFECTS // report number of effects playable at the same time
 
-	EVIOCGRAB     = C.EVIOCGRAB     // grab/release device
-	EVIOCSCLOCKID = C.EVIOCSCLOCKID // set clockid to be used for timestamps
+	EVIOCGRAB = C.EVIOCGRAB // grab/release device
+	// EVIOCSCLOCKID = C.EVIOCSCLOCKID // set clockid to be used for timestamps
 )
 
 var EVIOCGNAME = C._EVIOCGNAME(MAX_NAME_SIZE) // get device name
