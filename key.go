@@ -33,7 +33,7 @@ func ctlKeys(kbd string, control chan CTL) {
 		if ev.Value != int32(evdev.KeyDown) {
 			continue
 		}
-		kname := evdev.KEY[int(ev.Code]
+		kname := evdev.KEY[int(ev.Code)]
 		name, found := keyMap[kname]
 		if !found {
 			continue
