@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "B8TpaihN7IAVweKEqETyEisecbw=",
+			"path": "github.com/gvalkov/golang-evdev",
+			"revision": "87c03aa1a370124ec5a5fac733a629e0f9acd9a6",
+			"revisionTime": "2016-09-25T11:10:49Z"
+		}
+	],
+	"rootPath": "github.com/kardianos/bgmusic"
+}

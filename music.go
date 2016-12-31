@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"html/template"
 	"io"
 	"log"
@@ -25,13 +26,20 @@ func main() {
 	var (
 		control = make(chan CTL, 3)
 		errs    = make(chan error, 30)
+		kbd     = flag.String("kbd", "", "path of keybaord device")
 	)
+	flag.Parse()
+
 	go func() {
 		for {
 			err := <-errs
 			log.Println(err)
 		}
 	}()
+
+	if len(*kbd) > 0 {
+		go ctlKeys(*kbd, control)
+	}
 
 	os.Mkdir(SoundFolder, 0700)
 
@@ -120,6 +128,9 @@ func playLoop(control chan CTL, errs chan error) {
 					continue
 				}
 			case Stop:
+				if cmd == nil {
+					continue
+				}
 				cmd.Stop()
 				cmd = nil
 			}
