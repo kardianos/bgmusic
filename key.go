@@ -1,3 +1,5 @@
+// +build !mipsle
+
 package main
 
 import (
